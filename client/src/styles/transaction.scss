@@ -1,20 +1,37 @@
 .transaction {
-    border: 2px solid darkslategrey;
-    border-radius: 13px;
+    border: 2px solid lightslategray;
+    border-radius: 1rem;
     margin: 0.5rem 0;
     padding-bottom: 1rem;
     padding: 0 1rem;
-    width: 85%;
-
-    ul {
-        list-style: none;
-    }
+    width: 320px;
+    font-family: sans-serif;
 
     h4 {
         padding: 0;
-        font-style: normal;
-        font-weight: 600;
-        font-size: 1.2rem;
-        color: darkslategrey;
+        margin: 0;
+        display: block;
+        font-size: 2rem;
+    }
+    .description {
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 0.8rem;
+        color: #4d4d4d;
+        padding: 0;
+        margin: 0 0 1rem 0;
+        display: block;
+    }
+    .dates {
+        font-style: italic;
+        display: block;
+    }
+
+    .red {
+        color: orangered;
+    }
+
+    .green {
+        color: green;
     }
 }

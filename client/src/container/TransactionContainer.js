@@ -6,6 +6,7 @@ const TransactionContainer = () => {
     const [transactions, setTransactions] = useState([]);
     const [ynabFile, setYnabFile] = useState(null);
     const [sourceFile, setSourceFile] = useState(null);
+    const [accountName, setAccountName] = useState("");
     const [submitError, setSubmitError] = useState("");
 
     const handleYnabChange = (event) => {
@@ -13,11 +14,11 @@ const TransactionContainer = () => {
     };
 
     const buildFormData = () => {
-        if (ynabFile && sourceFile) {
+        if (ynabFile && sourceFile && accountName) {
             const formData = new FormData();
             formData.append("ynab", ynabFile);
             formData.append("account", sourceFile);
-
+            formData.append("accountName", accountName);
             return formData;
         }
 
@@ -59,20 +60,41 @@ const TransactionContainer = () => {
     };
 
     return (
-        <div>
+        <div className="transactionsContainer">
             <form onSubmit={handleSubmit}>
-                <label>
-                    YNAB: <input type="file" onChange={handleYnabChange} />
-                </label>
-                <label>
-                    Source Account:{" "}
-                    <input
-                        type="file"
-                        onChange={(e) => setSourceFile(e.target.files[0])}
-                    />
-                </label>
-                <input type="submit" value="Upload files" />
+                <div className="formElements">
+                    <div className="inner">
+                        <label>
+                            YNAB:{" "}
+                            <input type="file" onChange={handleYnabChange} />
+                        </label>
+                        <label>
+                            Source Account:{" "}
+                            <input
+                                type="file"
+                                onChange={(e) =>
+                                    setSourceFile(e.target.files[0])
+                                }
+                            />
+                        </label>
+                        <label>
+                            Account Name:{" "}
+                            <input
+                                className="accountName"
+                                type="text"
+                                value={accountName}
+                                onChange={(e) => setAccountName(e.target.value)}
+                            />
+                        </label>
+                        <input
+                            className="btn"
+                            type="submit"
+                            value="Upload files"
+                        />
+                    </div>
+                </div>
             </form>
+
             {submitError}
             {displayTransactions()}
         </div>

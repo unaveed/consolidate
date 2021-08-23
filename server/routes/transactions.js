@@ -1,27 +1,36 @@
 import express from "express";
 import multer from "multer";
 import csvConverter from "csvtojson";
+import { equalsIgnoreCase } from "../utils/Strings.js";
 
-const SOURCE_ACCOUNT = "Chase Amazon";
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 async function uploadFiles(req, res) {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body, null, 2));
     console.log(req.files);
 
     const ynab = req.files.ynab[0];
     const account = req.files.account[0];
+    const accountName = req.body.accountName ? req.body.accountName : "";
+    const dateDelta = req.body.dateDelta ? req.body.dateDelta : 0;
 
-    const accountTrans = await processFile(account, ynab);
+    // TODO: Terminate if ynab/account/accountName is falsy
+
+    const accountTrans = await processFile(
+        account,
+        ynab,
+        accountName,
+        dateDelta
+    );
     res.json({ message: "Successfully uploaded files.", data: accountTrans });
 }
 
-async function processFile(source, ynab) {
+async function processFile(source, ynab, accountName, dateDelta = 0) {
     const sourcePath = source.path;
     const ynabPath = ynab.path;
 
-    const accountTrans = {};
+    const accountTransactions = {};
 
     const ynabArray = await csvConverter()
         .fromFile(ynabPath)
@@ -40,15 +49,17 @@ async function processFile(source, ynab) {
         });
 
     ynabArray
-        .filter((transaction) => transaction.Account === SOURCE_ACCOUNT)
+        .filter((transaction) =>
+            equalsIgnoreCase(transaction.Account, accountName)
+        )
         .forEach((row) => {
             const amount = row.Amount;
-            if (!accountTrans[amount]) {
+            if (!accountTransactions[amount]) {
                 console.log("doesnt have amount", amount);
-                accountTrans[amount] = [row];
+                accountTransactions[amount] = [row];
             } else {
                 console.log("has amount", amount);
-                const trans = accountTrans[amount];
+                const trans = accountTransactions[amount];
                 trans.push(row);
             }
         });
@@ -63,7 +74,7 @@ async function processFile(source, ynab) {
         });
 
     const filteredTransactions = sourceArray
-        .filter((transaction) => !accountTrans[transaction.Amount])
+        .filter((transaction) => !accountTransactions[transaction.Amount])
         .sort((t1, t2) => t2.Date - t1.Date);
     return filteredTransactions;
 }
